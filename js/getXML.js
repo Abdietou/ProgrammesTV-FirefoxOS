@@ -583,7 +583,7 @@ xhr.onreadystatechange = function() {
             
 
         
-        document.getElementById('splashScreen').style.display = 'none';
+        /*document.getElementById('splashScreen').style.display = 'none';*/
         
         //appTitle.addEventListener("click", mySwipe.slide(16, 300), false);
         
@@ -596,11 +596,13 @@ xhr.onreadystatechange = function() {
    xhr.send();
 
  function updateProgress (oEvent) {
-    var percentComplete = 100 * oEvent.loaded / 1305454;
+
+    var percentComplete = Math.round(100 * oEvent.loaded / 8800408);
     console.log(percentComplete)
     $('#progess').text(percentComplete)
 }
 
 function transferComplete(evt) {
   console.log("Telechargement terminé.");
+  $('#splashScreen').hide();
 }
