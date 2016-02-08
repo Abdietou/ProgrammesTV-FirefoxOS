@@ -7,7 +7,11 @@ window.mySwipe = Swipe(elem, {
   // continuous: true,
   // disableScroll: true,
   // stopPropagation: true,
-  // callback: function(index, element) {},
+  callback: function(index, element) { 
+      $('.mainProgram')[index].style.display = 'block';
+      $('.nextPrograms')[index].style.display = 'block';;
+     
+  },
   // transitionEnd: function(index, element) {}
 });
 
