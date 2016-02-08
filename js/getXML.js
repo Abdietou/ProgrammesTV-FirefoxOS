@@ -55,6 +55,7 @@ xhr.onreadystatechange = function() {
                 //h1
                 var linkItemListeAccesRapide = document.createElement('h1');
                 linkItemListeAccesRapide.setAttribute("id", "h"+i);
+                $(linkItemListeAccesRapide).addClass("menu");
                 linkItemListeAccesRapide.textContent = channelName;
                 
                 
@@ -521,45 +522,16 @@ xhr.onreadystatechange = function() {
              
         }
         
-        
-        	$("#h0").on("click",function(){mySwipe.slide(0, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""})
-        	/*document.getElementById("h0").addEventListener("click", function(){mySwipe.slide(0, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	 
-        	document.getElementById("h1").addEventListener("click", function(){mySwipe.slide(1, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h2").addEventListener("click", function(){mySwipe.slide(2, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h3").addEventListener("click", function(){mySwipe.slide(3, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h4").addEventListener("click", function(){mySwipe.slide(4, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h5").addEventListener("click", function(){mySwipe.slide(5, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h6").addEventListener("click", function(){mySwipe.slide(6, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h7").addEventListener("click", function(){mySwipe.slide(7, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h8").addEventListener("click", function(){mySwipe.slide(8, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h9").addEventListener("click", function(){mySwipe.slide(9, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h10").addEventListener("click", function(){mySwipe.slide(10, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h11").addEventListener("click", function(){mySwipe.slide(11, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h12").addEventListener("click", function(){mySwipe.slide(12, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h13").addEventListener("click", function(){mySwipe.slide(13, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h14").addEventListener("click", function(){mySwipe.slide(14, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h15").addEventListener("click", function(){mySwipe.slide(15, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h16").addEventListener("click", function(){mySwipe.slide(16, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false);
-        	
-        	document.getElementById("h17").addEventListener("click", function(){mySwipe.slide(17, 300); document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = ""}, false); 
-        */
-        
+        $(".menu").on("click",function(){
+                menu = $(this);
+                idx=$(".menu").index(menu);
+                mySwipe.slide(idx, 300);
+                $('#listeProgramme').hide();
+                $('body').css("overflowY", "")
+            });
+
+
+
         var tonightMainProgram = document.getElementsByClassName('tonightMainProgram');
         var tonightNextPrograms = document.getElementsByClassName('tonightNextPrograms');
         
@@ -622,7 +594,7 @@ xhr.onreadystatechange = function() {
     }
 
    xhr.send();
-  
+
  function updateProgress (oEvent) {
     var percentComplete = 100 * oEvent.loaded / 1305454;
     console.log(percentComplete)
