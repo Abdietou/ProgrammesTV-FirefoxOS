@@ -549,12 +549,18 @@ xhr.onreadystatechange = function() {
                 tonight.css("textShadow", "0px 0px 10px white");
                 now.css("textShadow","0px 0px 0px white");
                 
-                tonightMainProgram[idx].style.display = 'block';
-                tonightNextPrograms[idx].style.display = 'block';
+
                 document.getElementsByClassName('tonightIconArrow')[idx].style.display = 'block';
                 
+                  $('.tonightMainProgram').hide();
+                  $('.tonightNextPrograms').hide();
+                  $('.mainProgram').hide();
+                  $('.nextPrograms').hide();
+
                 mainProgram[idx].style.display = 'none';
                 nextPrograms[idx].style.display = 'none';
+                tonightMainProgram[idx].style.display = 'block';
+                tonightNextPrograms[idx].style.display = 'block';
                 document.getElementsByClassName('iconArrow')[idx].style.display = 'none';
             }
             );
@@ -562,9 +568,11 @@ xhr.onreadystatechange = function() {
             //listeners pour afficher les programmes en cours
             
             $(".now").on("click", function(){
+
                 
                 now = $(this);
                 idx=$(".now").index(now);
+                console.log(idx)
                 tonight =$($(".tonight")[idx]);
                 now.css("textShadow", "0px 0px 10px white");
                 tonight.css("textShadow","0px 0px 0px white");
@@ -572,7 +580,11 @@ xhr.onreadystatechange = function() {
                 tonightMainProgram[idx].style.display = 'none';
                 tonightNextPrograms[idx].style.display = 'none';
                 document.getElementsByClassName('tonightIconArrow')[idx].style.display = 'block';
-                
+                  $('.tonightMainProgram').hide();
+                  $('.tonightNextPrograms').hide();
+                  $('.mainProgram').hide();
+                  $('.nextPrograms').hide();
+
                 mainProgram[idx].style.display = 'block';
                 nextPrograms[idx].style.display = 'block';
                 document.getElementsByClassName('iconArrow')[idx].style.display = 'none';
@@ -587,7 +599,7 @@ xhr.onreadystatechange = function() {
         
         //appTitle.addEventListener("click", mySwipe.slide(16, 300), false);
         
-        //mySwipe.slide(4, 300);
+        // mySwipe.slide(4, 300);
         
         
 
