@@ -1,4 +1,7 @@
 var xhr = new XMLHttpRequest({mozSystem: true});
+xhr.addEventListener("progress", updateProgress);
+xhr.addEventListener("load", transferComplete);
+
 xhr.open("GET", "http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/indianboy.xml", true);
 
 for(d = 0; d < 18; d++){
@@ -619,3 +622,13 @@ xhr.onreadystatechange = function() {
     }
 
    xhr.send();
+  
+ function updateProgress (oEvent) {
+    var percentComplete = 100 * oEvent.loaded / 1305454;
+    console.log(percentComplete)
+    $('#progess').text(percentComplete)
+}
+
+function transferComplete(evt) {
+  console.log("Telechargement terminé.");
+}
