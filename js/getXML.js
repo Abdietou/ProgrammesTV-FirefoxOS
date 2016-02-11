@@ -1,8 +1,29 @@
-var xhr = new XMLHttpRequest({mozSystem: true});
-xhr.addEventListener("progress", updateProgress);
-xhr.addEventListener("load", transferComplete);
+data={}
+if (navigator.onLine) {
+    var xhr = new XMLHttpRequest({mozSystem: true});
+    xhr.addEventListener("progress", updateProgress);
+    xhr.addEventListener("load", transferComplete);
+    url="http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/indianboy.xml"
+    xhr.open("GET", url, true);
+    xhr.onreadystatechange = function() {
 
-xhr.open("GET", "http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/indianboy.xml", true);
+    if (xhr.readyState == 4) {
+        data=xml2json(xhr.responseXML)
+        localStorage['data']=JSON.stringify(data)
+        // process_xml(data)
+
+   } 
+
+}
+   xhr.send();
+
+} else {
+      if (!!localStorage['data']) {
+        console.log( JSON.parse( localStorage['data'])["programmes"][0])
+         // process_xml(localStorage[url]);
+        }  
+}
+
 
 for(d = 0; d < 18; d++){
 	
@@ -18,17 +39,125 @@ for(d = 0; d < 18; d++){
     doclass[0].appendChild(divGeneral);
 }
 
+function demain(){
+    currentDate = new Date(new Date().getTime());
+    day = ("0"+(currentDate.getDate()+1)).slice(-2);
+    month = ("0"+(currentDate.getMonth()+1)).slice(-2); 
+    year = currentDate.getFullYear()
+    return ""+year+""+month+""+day
+}
 
-xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-        
-        var channels = xhr.responseXML.getElementsByTagName("channel");//balise chaine - liste de toutes les chaines
+function ch_json(ch){
+    var channelId = ch.getAttribute("id");
+    var channelName = ch.getElementsByTagName("display-name")[0].textContent;
+    return {"channelId":channelId,"channelName":channelName} 
+    
+}
+function pr_json(pr){
+    resPr={}
+    programmeId = pr.getAttribute("channel");
+    programmeStop = pr.getAttribute("stop");
+    programmeStart = pr.getAttribute("start");
+    programmeTitre = pr.getElementsByTagName("title")[0].textContent;
+     try{programmeSousTitre = "("+pr.getElementsByTagName("sub-title")[0].textContent+")";}
+        catch(exceptiondesc){ programmeSousTitre = null;}
+     try{programmeDesc = pr.getElementsByTagName("desc")[0].textContent;}
+        catch(exceptiondesc){ programmeDesc = null;}
+
+    programmeType = pr.getElementsByTagName("category")[0].textContent;
+    programmeCredits = pr.getElementsByTagName("credits")[0];
+   
+    resPr['programmeId'] = programmeId  
+    resPr['programmeStop'] = programmeStop  
+    resPr['programmeStart'] = programmeStart  
+    resPr['programmeTitre'] = programmeTitre  
+    resPr['programmeSousTitre'] = programmeSousTitre  
+    resPr['programmeDesc'] = programmeDesc  
+    resPr['programmeType'] = programmeType  
+    resPr['programmeCredits'] = programmeCredits  
+   
+    if(programmeType ==  'Documentaire' || programmeType == 'Feuilleton' ||
+        programmeType == 'Film' || programmeType == 'Téléfilm' ||
+        programmeType == 'Série'){
+
+        try{
+            programmeDirecteur = programmeCredits.getElementsByTagName("director")[0].textContent;
+            programmeActeurs = programmeCredits.getElementsByTagName("actor");
+            resPr['programmeDirecteur']=programmeDirecteur
+            for(var x = 0; x < programmeActeurs.length; x++){
+                acteurs += programmeActeurs[x].textContent + ", ";
+
+            }
+            rresPres['acteurs'] = acteurs
+
+        }
+        catch(exceptiondesc){
+            //Si cette balise est absente, on informe l'utilisateur
+            }
+        }
+    else if(programmeType == 'Magazine' || programmeType == 'Jeu' ||
+        programmeType == 'Journal' || programmeType == 'Divertissement'){
+        try{
+            programmeDirecteur = programmeCredits.getElementsByTagName("presenter")[0].textContent;
+            resPr['programmeDirecteur']=programmeDirecteur
+
+        }
+        catch(exceptiondesc){
+            //Si cette balise est absente, on informe l'utilisateur
+        }
+    }
+
+    try{
+        programmeDate = pr.getElementsByTagName("date")[0].textContent;
+        resPr['programmeDate']=programmeDate
+
+    }
+    catch(exceptiondesc){
+    //Si cette balise est absente, on informe l'utilisateur
+    }
+    programmeLength = pr.getElementsByTagName("length");
+    lenghtUnit = programmeLength[0].getAttribute("units");
+    resPr['programmeLength']=programmeLength
+    resPr['lenghtUnit']=lenghtUnit
+    return resPr
+}
+function xml2json(xml){
+    d=demain()
+    resXml = {"programmes":[],"channels":[]}
+    programmes=xml.getElementsByTagName("programme")
+    for(j = 0; j < programmes.length; j++){
+        if(parseInt(programmes[j].getAttribute("channel")) <20 && programmes[j].getAttribute("start") <d)
+                resXml["programmes"].push(pr_json(programmes[j]))
+    }
+    channels=xml.getElementsByTagName("channel")
+    for(j = 0; j < channels.length; j++){
+        if(parseInt(channels[j].getAttribute("id")) <"20" )
+                resXml["channels"].push(ch_json(channels[j]))
+    } 
+    return resXml;   
+}
+
+ function updateProgress (oEvent) {
+
+    var percentComplete = Math.round(100 * oEvent.loaded / 8800408);
+    console.log(percentComplete)
+    $('#progess').text(percentComplete)
+}
+
+function transferComplete(evt) {
+  console.log("Telechargement terminé.");
+  $('#splashScreen').hide();
+}
+
+function process_xml(xmlData){
+
+        var channels = xmlData.getElementsByTagName("channel");//balise chaine - liste de toutes les chaines
         
         var divg;
         
         
         for(i = 0; i < channels.length; i++){
-        		
+                
                 //On récupère l'ID et le nom de la chaine
                 var channelId = channels[i].getAttribute("id");
                 var channelName = channels[i].getElementsByTagName("display-name")[0].textContent;
@@ -69,7 +198,7 @@ xhr.onreadystatechange = function() {
                 var tokenS = 0;
                 
                 //On récupère le contenu des balises programme
-                var programmes = xhr.responseXML.getElementsByTagName("programme");
+                var programmes = xmlData.getElementsByTagName("programme");
                 
                 outer: for(j = 0; j < programmes.length; j++){
                     
@@ -131,10 +260,10 @@ xhr.onreadystatechange = function() {
                         programmeCredits = programmes[j].getElementsByTagName("credits")[0];
                         
                         if(programmeType ==  'Documentaire' || programmeType == 'Feuilleton' ||
-                        		programmeType == 'Film' || programmeType == 'Téléfilm' ||
-                        		programmeType == 'Série'){
-                        	
-                        	try{
+                                programmeType == 'Film' || programmeType == 'Téléfilm' ||
+                                programmeType == 'Série'){
+                            
+                            try{
                                 programmeDirecteur = programmeCredits.getElementsByTagName("director")[0].textContent;
                                 programmeActeurs = programmeCredits.getElementsByTagName("actor");
                                 
@@ -151,8 +280,8 @@ xhr.onreadystatechange = function() {
                         
                         
                         else if(programmeType == 'Magazine' || programmeType == 'Jeu' ||
-                        		programmeType == 'Journal' || programmeType == 'Divertissement'){
-                        	try{
+                                programmeType == 'Journal' || programmeType == 'Divertissement'){
+                            try{
                                 programmeDirecteur = programmeCredits.getElementsByTagName("presenter")[0].textContent;
 
                             }
@@ -161,8 +290,8 @@ xhr.onreadystatechange = function() {
                             }
                         }
                         
-                    	try{
-                    		programmeDate = programmes[j].getElementsByTagName("date")[0].textContent;
+                        try{
+                            programmeDate = programmes[j].getElementsByTagName("date")[0].textContent;
 
                         }
                         catch(exceptiondesc){
@@ -287,10 +416,10 @@ xhr.onreadystatechange = function() {
                         programmeCreditsS = programmes[j].getElementsByTagName("credits")[0];
                         
                         if(programmeTypeS ==  'Documentaire' || programmeTypeS == 'Feuilleton' ||
-                        		programmeTypeS == 'Film' || programmeTypeS == 'Téléfilm' ||
-                        		programmeTypeS == 'Série'){
-                        	
-                        	try{
+                                programmeTypeS == 'Film' || programmeTypeS == 'Téléfilm' ||
+                                programmeTypeS == 'Série'){
+                            
+                            try{
                                 programmeDirecteurS = programmeCreditsS.getElementsByTagName("director")[0].textContent;
                                 programmeActeursS = programmeCreditsS.getElementsByTagName("actor");
                                 
@@ -307,8 +436,8 @@ xhr.onreadystatechange = function() {
                         
                         
                         else if(programmeTypeS == 'Magazine' || programmeTypeS == 'Jeu' ||
-                        		programmeTypeS == 'Journal' || programmeTypeS == 'Divertissement'){
-                        	try{
+                                programmeTypeS == 'Journal' || programmeTypeS == 'Divertissement'){
+                            try{
                                 programmeDirecteurS = programmeCreditsS.getElementsByTagName("presenter")[0].textContent;
 
                             }
@@ -317,8 +446,8 @@ xhr.onreadystatechange = function() {
                             }
                         }
                         
-                    	try{
-                    		programmeDateS = programmes[j].getElementsByTagName("date")[0].textContent;
+                        try{
+                            programmeDateS = programmes[j].getElementsByTagName("date")[0].textContent;
 
                         }
                         catch(exceptiondesc){
@@ -392,7 +521,7 @@ xhr.onreadystatechange = function() {
                     /*---------------------------------------------------------------------------*/
                     
                     if(token == 1 && tokenS == 1){
-                    	break outer;
+                        break outer;
                     }
                     
                 }
@@ -503,13 +632,11 @@ xhr.onreadystatechange = function() {
                 
                 //Rattachement de la divGeneral à divParent (la div swipe-wrap)
                 divParent[0].appendChild(divgg);
-        }
-        
-       
-   }    
-    
- 
-        document.getElementById('listIcon').addEventListener("click", function(){document.getElementById('listeProgramme').style.display = "block"; document.getElementsByTagName('body')[0].style.overflowY = "hidden";}, false);
+            }
+}
+
+function init(){
+      document.getElementById('listIcon').addEventListener("click", function(){document.getElementById('listeProgramme').style.display = "block"; document.getElementsByTagName('body')[0].style.overflowY = "hidden";}, false);
         document.getElementById('closeIcon').addEventListener("click", function(){document.getElementById('listeProgramme').style.display = "none"; document.getElementsByTagName('body')[0].style.overflowY = "";}, false);
   
         //Liste de sélection des chaînes
@@ -572,7 +699,6 @@ xhr.onreadystatechange = function() {
                 
                 now = $(this);
                 idx=$(".now").index(now);
-                console.log(idx)
                 tonight =$($(".tonight")[idx]);
                 now.css("textShadow", "0px 0px 10px white");
                 tonight.css("textShadow","0px 0px 0px white");
@@ -591,30 +717,4 @@ xhr.onreadystatechange = function() {
             }
             );
             
-            
-            
-
-        
-        /*document.getElementById('splashScreen').style.display = 'none';*/
-        
-        //appTitle.addEventListener("click", mySwipe.slide(16, 300), false);
-        
-        // mySwipe.slide(4, 300);
-        
-        
-
-    }
-
-   xhr.send();
-
- function updateProgress (oEvent) {
-
-    var percentComplete = Math.round(100 * oEvent.loaded / 8800408);
-    console.log(percentComplete)
-    $('#progess').text(percentComplete)
-}
-
-function transferComplete(evt) {
-  console.log("Telechargement terminé.");
-  $('#splashScreen').hide();
 }
