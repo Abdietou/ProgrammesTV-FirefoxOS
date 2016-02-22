@@ -1,28 +1,16 @@
 data = {}
 
 
-// We'll assume we aren't online.
-var online = false;
 
-// Assume we're a packaged app with systemXHR permissions.
-// https://developer.mozilla.org/docs/Web/Apps/App_permissions
-var request = new window.XMLHttpRequest({mozSystem: true});
-request.open('HEAD', 'http://www.mozilla.org/robots.txt', true);
-request.timeout = 5750;
-
-request.addEventListener('load', function(event) {
-   console.log('We seem to be online!', event);
-   online = true;
-});
-
-var offlineAlert = function(event) {
+var offlineMode = function(event) {
    console.log('We are likely offline:', event);
+   if (!!localStorage['data']) {
+        $('#splashScreen').hide();
+        process_xml(localStorage['data']);
+    }
+
 }
 
-request.addEventListener('error', offlineAlert);
-request.addEventListener('timeout', offlineAlert);
-
-request.send(null);
 
 
 for (d = 0; d < 18; d++) {
@@ -39,35 +27,26 @@ for (d = 0; d < 18; d++) {
     doclass[0].appendChild(divGeneral);
 }
 
+var xhr = new XMLHttpRequest({
+    mozSystem: true
+});
+xhr.addEventListener("progress", updateProgress);
+xhr.addEventListener("load", transferComplete);
+url = "http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/indianboy.xml"
+xhr.addEventListener('error', offlineMode);
+xhr.addEventListener('timeout', offlineMode);
+xhr.open("GET", url, true);
+xhr.onreadystatechange = function() {
 
-if (online) {
-    var xhr = new XMLHttpRequest({
-        mozSystem: true
-    });
-    xhr.addEventListener("progress", updateProgress);
-    xhr.addEventListener("load", transferComplete);
-    url = "http://xmltv.dtdns.net/alacarte/ddl?fichier=/xmltv_site/xmlPerso/indianboy.xml"
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function() {
-
-        if (xhr.readyState == 4) {
-            data = JSON.stringify(xml2json(xhr.responseXML))
-            localStorage['data'] = data
-            process_xml(data)
-
-        }
+    if (xhr.readyState == 4) {
+        data = JSON.stringify(xml2json(xhr.responseXML))
+        localStorage['data'] = data
+        process_xml(data)
 
     }
-    xhr.send();
 
-} else {
-    if (!!localStorage['data']) {
-        $('#splashScreen').hide();
-        process_xml(localStorage['data']);
-    }
 }
-
-
+xhr.send();
 
 function demain() {
     currentDate = new Date(new Date().getTime());
@@ -311,8 +290,7 @@ function process_xml(xmlData) {
                  * On intialise une variable j au programme suivant et qui correspondant toujours à la
                  * chaîne courante.
                  */
-                for (q = 0, p = j + 1; q < 3 && programmeId == programmes[p]["programmeId"]; q++, p++) {
-
+                for (q = 0, p = j + 1; q < 3 && p < programmes.length - 1 && programmeId == programmes[p]["programmeId"] ; q++, p++) {
                     //On se positionne sur la 1ère balise des next programmes
                     baliseCourante = nextProg.firstElementChild;
 
@@ -436,7 +414,7 @@ function process_xml(xmlData) {
                  * chaîne courante.
                  */
 
-                for (q = 0, p = j + 1; q < 3 && programmeId == programmes[p]["programmeId"] && p < programmes.length - 1; q++, p++) {
+                for (q = 0, p = j + 1; q < 3 && p < programmes.length - 1 && programmeId == programmes[p]["programmeId"]; q++, p++) {
 
                     //On se positionne sur la 1ère balise des next programmes
                     baliseCouranteS = nextProgS.firstElementChild;
@@ -588,7 +566,6 @@ function process_xml(xmlData) {
         //On rattache notre template à jour à la divB en fonction du numéro de la chaîne.
         var itemp = 'b' + i;
         var divbb = document.getElementById(itemp);
-        console.log(divbb)
         divbb.appendChild(templateClone);
 
         //Notre divB qui contient notre template fourni est rattaché à la div générale
